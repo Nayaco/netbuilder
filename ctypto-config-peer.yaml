@@ -1,0 +1,10 @@
+PeerOrgs:
+  - Name: {{ peer_name }}
+    Domain: {{ peer_name | lower }}.{{ peer_domain }}
+    EnableNodeOUs: true
+    Template:
+      Count: {{ peer_nodes }}
+      SANS:
+        - localhost
+    Users:
+      Count: {{ peer_users }}

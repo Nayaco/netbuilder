@@ -1,0 +1,8 @@
+OrdererOrgs:
+  - Name: {{ orderer_name }}
+    Domain: {{ orderer_domain }}
+    EnableNodeOUs: true
+    Specs:
+      - Hostname: {{ orderer_hostname }}
+        SANS:
+          - localhost
