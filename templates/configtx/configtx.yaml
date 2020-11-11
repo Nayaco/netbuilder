@@ -129,7 +129,7 @@ Channel: &ChannelDefaults
 ################################################################################
 Profiles:
 
-  TwoOrgsOrdererGenesis:
+  {{ tx.genesis_profile }}:
     <<: *ChannelDefaults
     Orderer:
       <<: *OrdererDefaults
@@ -143,14 +143,16 @@ Profiles:
 {%- for peer in peerorgs %}
           - *{{ peer.peer_name }}
 {%- endfor %}
-  TwoOrgsChannel:
+{%- for channel_profile in tx.channel_profiles %}
+  {{ channel_profile.profile_name }}:
     Consortium: SampleConsortium
     <<: *ChannelDefaults
     Application:
       <<: *ApplicationDefaults
       Organizations:
-{%- for peer in peerorgs %}
-        - *{{ peer.peer_name }}
+{%- for peer in channel_profile.peerorgs %}
+        - *{{ peer }}
 {%- endfor %}
       Capabilities:
         <<: *ApplicationCapabilities
+{%- endfor %}

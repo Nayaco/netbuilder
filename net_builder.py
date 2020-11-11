@@ -8,7 +8,17 @@ input_data = {
     'script_pwd': os.getcwd(),
     'ca_network_name': 'test',
     'base_network_name': 'test',
-    'genesis_channel': 'system_channel',
+    'crypto_method': 'CA',
+    'tx': {
+        'genesis_channel': 'system_channel',
+        'genesis_profile': 'TwoOrgsOrdererGenesis',
+        'channel_profiles': [
+            {
+                'profile_name': 'TwoOrgsChannel',
+                'peerorgs': ['Org1', 'Org2']
+            }
+        ]
+    },
     'affiliations': [
         {
             'peer': 'org1',
