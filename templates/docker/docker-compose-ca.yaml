@@ -1,0 +1,45 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+networks:
+  {{ ca_network_name }}:
+
+services:
+  ca_{{ orderer.orderer_name | lower }}:
+    image: hyperledger/fabric-ca:$IMAGE_TAG
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-{{ orderer.orderer_name | lower }}
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_PORT={{ orderer.CA.port }}
+    ports:
+      - "{{ orderer.CA.port }}:{{ orderer.CA.port }}"
+    command: sh -c 'fabric-ca-server start -b {{ orderer.CA.admin }}:{{ orderer.CA.adminpw }} -d'
+    volumes:
+      - ../organizations/fabric-ca/{{ orderer.orderer_name | lower }}Org:/etc/hyperledger/fabric-ca-server
+    container_name: ca_{{ orderer.orderer_name | lower }}
+    networks:
+      - {{ca_network_name }}
+
+{%- for peer in peerorgs %}
+
+  ca_{{ peer.peer_name | lower }}:
+    image: hyperledger/fabric-ca:$IMAGE_TAG
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-{{ peer.peer_name | lower }}
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_PORT={{ peer.CA.port }}
+    ports:
+      - "{{ peer.CA.port }}:{{ peer.CA.port }}"
+    command: sh -c 'fabric-ca-server start -b {{ peer.CA.admin }}:{{ peer.CA.adminpw }} -d'
+    volumes:
+      - ../organizations/fabric-ca/{{ peer.peer_name | lower }}:/etc/hyperledger/fabric-ca-server
+    container_name: ca_{{ peer.peer_name | lower }}
+    networks:
+      - {{ ca_network_name }}
+{%- endfor %}

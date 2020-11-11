@@ -1,3 +1,4 @@
+.vscode
 system-genesis-block
 organizations/fabric-ca/*/msp
 organizations/fabric-ca/*/ca-cert.pem
@@ -5,5 +6,4 @@ organizations/fabric-ca/*/fabric-ca-server.db
 organizations/fabric-ca/*/IssuerPublicKey
 organizations/fabric-ca/*/IssuerRevocationPublicKey
 organizations/fabric-ca/*/tls-cert.pem
-
-
+test

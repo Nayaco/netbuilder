@@ -3,6 +3,6 @@ OrdererOrgs:
     Domain: {{ orderer_domain }}
     EnableNodeOUs: true
     Specs:
-      - Hostname: {{ orderer_hostname }}
+      - Hostname: {{ orderer_name | lower }}
         SANS:
           - localhost

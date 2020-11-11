@@ -103,9 +103,7 @@ function createOrgs() {
     sleep 10
 
     createOrg1
-
     createOrg2
-
     createOrderer
 }
 
