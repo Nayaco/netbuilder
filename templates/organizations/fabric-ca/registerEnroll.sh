@@ -179,13 +179,13 @@ function create{{ orderer.orderer_name }}() {
   cp ${PWD}/organizations/ordererOrganizations/{{ orderer.orderer_domain }}/orderers/{{ orderer_dir }}/tls/keystore/* \
     ${PWD}/organizations/ordererOrganizations/{{ orderer.orderer_domain }}/orderers/{{ orderer_dir }}/tls/server.key
 
-  mkdir -p ${PWD}/organizations/ordererOrganizations/{{ orderer.orderer_domain }}/msp/tlscacerts
-  cp ${PWD}/organizations/ordererOrganizations/{{ orderer.orderer_domain }}/orderers/{{ node_dir }}/tls/tlscacerts/* \
-    ${PWD}/organizations/ordererOrganizations/{{ orderer.orderer_domain }}/orderers/{{ orderer_dir }}/msp/tlscacerts/tlsca.{{ orderer_dir }}-cert.pem
-
-  mkdir -p ${PWD}/organizations/ordererOrganizations/{{ orderer.orderer_domain }}/tlsca
+  mkdir -p ${PWD}/organizations/ordererOrganizations/{{ orderer.orderer_domain }}/orderers/{{ orderer_dir }}/msp/tlscacerts
   cp ${PWD}/organizations/ordererOrganizations/{{ orderer.orderer_domain }}/orderers/{{ orderer_dir }}/tls/tlscacerts/* \
-    ${PWD}/organizations/ordererOrganizations/{{ orderer.orderer_domain }}/msp/tlscacerts/tlsca.{{ peer_dir }}-cert.pem
+    ${PWD}/organizations/ordererOrganizations/{{ orderer.orderer_domain }}/orderers/{{ orderer_dir }}/msp/tlscacerts/tlsca.{{ orderer.orderer_domain }}-cert.pem
+
+  mkdir -p ${PWD}/organizations/ordererOrganizations/{{ orderer.orderer_domain }}/msp/tlscacerts
+  cp ${PWD}/organizations/ordererOrganizations/{{ orderer.orderer_domain }}/orderers/{{ orderer_dir }}/tls/tlscacerts/* \
+    ${PWD}/organizations/ordererOrganizations/{{ orderer.orderer_domain }}/msp/tlscacerts/tlsca.{{ orderer.orderer_domain }}-cert.pem
 #############################################################
   mkdir -p organizations/ordererOrganizations/{{ orderer.orderer_domain }}/users
 

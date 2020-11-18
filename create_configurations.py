@@ -3,11 +3,11 @@ import os
 def gen_configtx_conf(target_dir, data):
     if not os.path.exists(target_dir): 
         os.mkdir(target_dir)
-    if not os.path.exists(os.path.join(target_dir, 'configtx')): 
-        os.mkdir(os.path.join(target_dir, 'configtx'))
+    if not os.path.exists(os.path.join(target_dir, 'config')): 
+        os.mkdir(os.path.join(target_dir, 'config'))
 
-    util.render_template('configtx/configtx.yaml', 
-        os.path.join(target_dir, 'configtx', 'configtx.yaml'), data)
+    util.render_template('config/configtx.yaml', 
+        os.path.join(target_dir, 'config', 'configtx.yaml'), data)
 
 
 def gen_cryptogen_conf(target_dir, data):

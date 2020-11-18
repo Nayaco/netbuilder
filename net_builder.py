@@ -1,4 +1,6 @@
+#!python
 import subprocess, os
+import util
 # process = subprocess.Popen(['echo', 'More output'],
 #                      stdout=subprocess.PIPE, 
 #                      stderr=subprocess.PIPE)
@@ -6,11 +8,17 @@ import subprocess, os
 # print(stdout, stderr)
 input_data = {
     'script_pwd': os.getcwd(),
+    'force': False,
+    'max_retry': 3,
+    'cli_delay': 5,
+    'image_tag': 'latest',
+    'ca_image_tag': 'latest',
+    'database': 'leveldb',
     'ca_network_name': 'test',
     'base_network_name': 'test',
-    'crypto_method': 'CA',
+    'crypto_method': 'cryptogen',
     'tx': {
-        'genesis_channel': 'system_channel',
+        'genesis_channel': 'system-channel',
         'genesis_profile': 'TwoOrgsOrdererGenesis',
         'channel_profiles': [
             {
@@ -19,6 +27,13 @@ input_data = {
             }
         ]
     },
+    'channels': [
+        {
+            'channel_name': 'mychannel',
+            'channel_profile': 'TwoOrgsChannel',
+            'peerorgs': ['Org1', 'Org2'],
+        }
+    ],
     'affiliations': [
         {
             'peer': 'org1',
@@ -95,6 +110,9 @@ input_data = {
     ],
 }
 
+util.msp_autofill(input_data)
+
+
 env_vars = os.environ.copy()
 env_vars["PATH"] = input_data['script_pwd'] + "bin:" + env_vars["PATH"]
 
@@ -108,4 +126,6 @@ create_configurations.gen_fabric_ca_server_conf('test', input_data)
 
 create_script.create_registerEnroll('test', input_data)
 create_script.create_envVars('test', input_data)
+create_script.create_createChannel('test', input_data)
+create_script.create_netController('test', input_data)
 

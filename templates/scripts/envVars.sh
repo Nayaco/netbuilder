@@ -15,6 +15,7 @@ set{{ orderer.orderer_name }}Globals() {
   export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/ordererOrganizations/{{ orderer.orderer_domain }}/users/Admin@{{ orderer.orderer_domain }}/msp
 }
 
+
 setGlobals() {
   local USING_ORG=""
   local USING_PEER=""
@@ -26,9 +27,9 @@ setGlobals() {
 {%- for peernode in peer.peernodes %}
 {%- set node_dir = 'peer' ~ (loop.index0) ~ '.' ~ peer_dir %}
 {%- if (index_peer == 0) and (loop.index0 == 0) %}
-  if [ $USING_ORG -eq "{{ peer.peer_name }}" && $USING_PEER -eq {{ loop.index0 }} ]; then
+  if [[ $USING_ORG == "{{ peer.peer_name }}" ]] && [[ $USING_PEER -eq {{ loop.index0 }} ]]; then
 {%- else %}
-  elif [ $USING_ORG -eq "{{ peer.peer_name }}" && $USING_PEER -eq {{ loop.index0 }} ]; then
+  elif [[ $USING_ORG == "{{ peer.peer_name }}" ]] && [[ $USING_PEER -eq {{ loop.index0 }} ]]; then
 {%- endif %}
     export CORE_PEER_LOCALMSPID="{{ peer.peer_name }}MSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER{{ loop.index0 }}_{{ peer.peer_name | upper }}_CA

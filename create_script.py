@@ -18,3 +18,20 @@ def create_envVars(target_dir, data):
         os.mkdir(os.path.join(target_dir, 'scripts'))
     util.render_template('scripts/envVars.sh',
         os.path.join(target_dir, 'scripts', 'envVars.sh'), data)
+
+def create_createChannel(target_dir, data):
+    if not os.path.exists(target_dir): 
+        os.mkdir(target_dir)
+    if not os.path.exists(os.path.join(target_dir, 'scripts')): 
+        os.mkdir(os.path.join(target_dir, 'scripts'))
+    for channel in data['channels']:
+        util.render_template('scripts/createChannel.sh',
+            os.path.join(target_dir, 'scripts', 'createChannel' + channel['channel_name'] +'.sh'), 
+            {'channel': channel, 'orderer': data['orderer']})
+
+def create_netController(target_dir, data):
+    if not os.path.exists(target_dir): 
+        os.mkdir(target_dir)
+    util.render_template('netController.sh',
+        os.path.join(target_dir, 'netController.sh'), data)
+
