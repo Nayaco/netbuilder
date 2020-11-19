@@ -31,7 +31,7 @@ input_data = {
         {
             'channel_name': 'mychannel',
             'channel_profile': 'TwoOrgsChannel',
-            'peerorgs': ['Org1', 'Org2'],
+            'peerorgs': ['Org1', 'Org2']
         }
     ],
     'affiliations': [
@@ -110,7 +110,7 @@ input_data = {
     ],
 }
 
-util.msp_autofill(input_data)
+util.data_autofill(input_data)
 
 
 env_vars = os.environ.copy()

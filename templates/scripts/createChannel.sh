@@ -4,6 +4,8 @@ CHANNEL_NAME="{{ channel.channel_name }}"
 CHANNEL_PROFILE="{{ channel.channel_profile }}"
 CHANNEL_ORGMSPS=({% for msp in channel.msps %}{{ msp }} {% endfor %})
 CHANNEL_PEERS=({% for org in channel.peerorgs %}{{ org }} {% endfor %})
+CHANNEL_PEER_NODES=({% for num in channel.peerorg_nodes %}{{ num }} {% endfor %})
+
 CHANNEL_MAIN_ORG={{ channel.peerorgs[0] }}
 CHANNEL_MAIN_NODE=0
 DELAY="$1"
@@ -13,7 +15,7 @@ VERBOSE="$3"
 FABRIC_CFG_PATH=${PWD}/config
 
 : ${DELAY:="3"}
-: ${MAX_RETRY:="5"}
+: ${MAX_RETRY:="3"}
 : ${VERBOSE:="false"}
 
 . ./scripts/envVars.sh
@@ -50,7 +52,7 @@ createChannel() {
   setGlobals $CHANNEL_MAIN_ORG $CHANNEL_MAIN_NODE
   local rc=1
   local COUNTER=1
-  while [ $rc -ne 0 -a $COUNTER -lt $MAX_RETRY ] ; do
+  while [ $rc -ne 0 -a $COUNTER -lt $MAX_RETRY ]; do
     sleep $DELAY
     set -x
     peer channel create -o localhost:{{ orderer.port }} -c $CHANNEL_NAME \
@@ -66,51 +68,57 @@ createChannel() {
 }
 
 joinChannel() {
-    ORG=$1
-    PEER=$2
-    setGlobals $ORG $PEER
-    local rc=1
-    local COUNTER=1
-    while [ $rc -ne 0 -a $COUNTER -lt $MAX_RETRY ] ; do
-    sleep $DELAY
-    set -x
-    peer channel join -b ./channel-artifacts/$CHANNEL_NAME.pb >&log.txt
-    res=$?
-    set +x
-        let rc=$res
-        COUNTER=$(expr $COUNTER + 1)
-    done
-	cat log.txt
+  ORG=$1
+  PEER=$2
+  setGlobals $ORG $PEER
+  local rc=1
+  local COUNTER=1
+  while [ $rc -ne 0 -a $COUNTER -lt $MAX_RETRY ]; do
+  sleep $DELAY
+  set -x
+  peer channel join -b ./channel-artifacts/$CHANNEL_NAME.pb >&log.txt
+  res=$?
+  set +x
+      let rc=$res
+      COUNTER=$(expr $COUNTER + 1)
+  done
+  cat log.txt
 }
 
 updateAnchorPeers() {
-    ORG=$1
-    PEER=$2
-    setGlobals $ORG $PEER
-    local rc=1
-    local COUNTER=1
-    while [ $rc -ne 0 -a $COUNTER -lt $MAX_RETRY ] ; do
-    sleep $DELAY
-    set -x
-      # TODO: fix orderer address to be able to be visit
-      peer channel update -o localhost:{{ orderer.port }} \
-          --ordererTLSHostnameOverride {{ orderer.orderer_name | lower }}.{{ orderer.orderer_domain }} \
-          -c $CHANNEL_NAME -f ./channel-artifacts/${CORE_PEER_LOCALMSPID}Anchor_${CHANNEL_NAME}.pb --tls --cafile $ORDERER_CA >&log.txt
-    res=$?
-    set +x
-        let rc=$res
-        COUNTER=$(expr $COUNTER + 1)
-    done
-    cat log.txt
-    sleep $DELAY
+  ORG=$1
+  PEER=$2
+  setGlobals $ORG $PEER
+  local rc=1
+  local COUNTER=1
+  while [ $rc -ne 0 -a $COUNTER -lt $MAX_RETRY ]; do
+  sleep $DELAY
+  set -x
+  # TODO: add real availiable orderer address on ethernet
+  peer channel update -o localhost:{{ orderer.port }} \
+      --ordererTLSHostnameOverride {{ orderer.orderer_name | lower }}.{{ orderer.orderer_domain }} \
+      -c $CHANNEL_NAME -f ./channel-artifacts/${CORE_PEER_LOCALMSPID}Anchor_${CHANNEL_NAME}.pb --tls --cafile $ORDERER_CA >&log.txt
+  res=$?
+  set +x
+  let rc=$res
+  COUNTER=$(expr $COUNTER + 1)
+  done
+  cat log.txt
+  sleep $DELAY
 }
 
 createChannelBlock
 createAncorPeerBlock
 createChannel
 
+ORG_ITER=0
 for org in ${CHANNEL_PEERS[@]}; do
-  joinChannel $org 0
+  NODES_NUM=CHANNEL_PEER_NODES[ORG_ITER]
+  NODES_NUM=$(expr $NODES_NUM - 1)
+  for peer_index in {0..${NODES_NUM}} do
+    joinChannel $org $peer_index
+  done
+  ORG_ITER=$(expr $ORG_ITER + 1)
 done
 
 for org in ${CHANNEL_PEERS[@]}; do
