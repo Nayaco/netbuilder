@@ -38,13 +38,13 @@ input_data = {
         {
             'channel': 'mychannel',
             'cc_name': 'fabcar',
-            'cc_path': './',
+            'cc_path': os.getcwd() + '/test/chaincodes/fabcar',
             'cc_lang': 'javascript',
             'cc_version': '1.0',
-            'cc_seq': '',
-            'init_func': '',
-            'sig_policy': '',
-            'col_config': '',
+            'cc_seq': '1',
+            'init_func': 'initLedger',
+            'sig_policy': 'NA',
+            'col_config': 'NA',
             'endorse_peers': [
                 {'org': 'Org1', 'peer': 0},
                 {'org': 'Org2', 'peer': 0}

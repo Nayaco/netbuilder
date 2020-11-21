@@ -156,7 +156,6 @@ approveForMyOrg() {
 # }
 
 commitChaincodeDefinition() {
-  PEER_CONN_PARMS=$1
 	set -x
   # TODO: add real availiable orderer address on ethernet
 	peer lifecycle chaincode commit \
@@ -194,7 +193,6 @@ queryCommitted() {
 }
 
 chaincodeInvokeInit() {
-  PEER_CONN_PARMS=$1
 	set -x
 	fcn_call='{"function":"'${CC_INIT_FCN}'","Args":[]}'
 	peer chaincode invoke \
@@ -208,31 +206,28 @@ chaincodeInvokeInit() {
 	cat log.txt
 }
 
-# packageChaincode ${CC_PEER_MAIN[0]} ${CC_PEER_MAIN[1]}
+packageChaincode ${CC_PEER_MAIN[0]} ${CC_PEER_MAIN[1]}
 
-# for _peernode in ${CC_PEERS[@]}; do 
-#   peernode=($_peernode)
-#   installChaincode ${peernode[0]} ${peernode[1]} 
-# done
-# queryInstalled ${CC_PEER_MAIN[0]} ${CC_PEER_MAIN[1]}
+for _peernode in "${CC_PEERS[@]}"; do
+  peernode=($_peernode)
+  installChaincode ${peernode[0]} ${peernode[1]} 
+done
+queryInstalled ${CC_PEER_MAIN[0]} ${CC_PEER_MAIN[1]}
 
-# for _peernode in ${CC_PEERS[@]}; do 
-#   peernode=($_peernode)
-#   approveForMyOrg ${peernode[0]} ${peernode[1]} 
-# done
+for _peernode in "${CC_PEERS[@]}"; do
+  peernode=($_peernode)
+  approveForMyOrg ${peernode[0]} ${peernode[1]} 
+done
 
-# # checkCommitReadiness 1 "\"Org1MSP\": true" "\"Org2MSP\": false"
-# # checkCommitReadiness 2 "\"Org1MSP\": true" "\"Org2MSP\": false"
-# commitChaincodeDefinition 
-# for _peernode in ${CC_PEERS[@]}; do
-#   peernode=($_peernode) 
-#   queryCommitted ${peernode[0]} ${peernode[1]} 
-# done
+commitChaincodeDefinition
+for _peernode in "${CC_PEERS[@]}"; do
+  peernode=($_peernode)
+  queryCommitted ${peernode[0]} ${peernode[1]} 
+done
 
-# if [ "$CC_INIT_FCN" != "NA" ]; then
-#   chaincodeInvokeInit 
-# fi
+setGlobals $
+if [ "$CC_INIT_FCN" != "NA" ]; then
+  chaincodeInvokeInit
+fi
 
-# exit 0
-
-echo $PEER_CONN_PARMS
+exit 0

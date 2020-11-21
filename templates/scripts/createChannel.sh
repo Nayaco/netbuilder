@@ -113,9 +113,9 @@ createChannel
 
 ORG_ITER=0
 for org in ${CHANNEL_PEERS[@]}; do
-  NODES_NUM=CHANNEL_PEER_NODES[ORG_ITER]
+  NODES_NUM=${CHANNEL_PEER_NODES[ORG_ITER]}
   NODES_NUM=$(expr $NODES_NUM - 1)
-  for peer_index in {0..${NODES_NUM}} do
+  for peer_index in {0..${NODES_NUM}}; do
     joinChannel $org $peer_index
   done
   ORG_ITER=$(expr $ORG_ITER + 1)
