@@ -29,9 +29,26 @@ def create_createChannel(target_dir, data):
             os.path.join(target_dir, 'scripts', 'createChannel' + channel['channel_name'] +'.sh'), 
             {'channel': channel, 'orderer': data['orderer']})
 
+def create_DeployChaincode(target_dir, data):
+    if not os.path.exists(target_dir): 
+        os.mkdir(target_dir)
+    if not os.path.exists(os.path.join(target_dir, 'scripts')): 
+        os.mkdir(os.path.join(target_dir, 'scripts'))
+    input_data = []
+    for chaincode in data['chaincodes']:
+        input_data.append({'chaincode': chaincode, 'orderer': data['orderer']})
+    for channel in data['channels']:
+        for chaincode in input_data:
+            if chaincode['chaincode']['channel'] == channel['channel_name']:
+                chaincode['channel'] = channel
+    for chaincode in input_data:
+        util.render_template('scripts/deployChaincode.sh',
+            os.path.join(target_dir, 'scripts', 'deployChaincode' + chaincode['chaincode']['cc_name'] +'.sh'), chaincode)
+
 def create_netController(target_dir, data):
     if not os.path.exists(target_dir): 
         os.mkdir(target_dir)
     util.render_template('netController.sh',
         os.path.join(target_dir, 'netController.sh'), data)
+
 

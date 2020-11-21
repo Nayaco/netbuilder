@@ -34,6 +34,23 @@ input_data = {
             'peerorgs': ['Org1', 'Org2']
         }
     ],
+    'chaincodes': [
+        {
+            'channel': 'mychannel',
+            'cc_name': 'fabcar',
+            'cc_path': './',
+            'cc_lang': 'javascript',
+            'cc_version': '1.0',
+            'cc_seq': '',
+            'init_func': '',
+            'sig_policy': '',
+            'col_config': '',
+            'endorse_peers': [
+                {'org': 'Org1', 'peer': 0},
+                {'org': 'Org2', 'peer': 0}
+            ]
+        }
+    ],
     'affiliations': [
         {
             'peer': 'org1',
@@ -127,5 +144,6 @@ create_configurations.gen_fabric_ca_server_conf('test', input_data)
 create_script.create_registerEnroll('test', input_data)
 create_script.create_envVars('test', input_data)
 create_script.create_createChannel('test', input_data)
+create_script.create_DeployChaincode('test', input_data)
 create_script.create_netController('test', input_data)
 

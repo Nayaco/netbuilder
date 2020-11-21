@@ -1,0 +1,4 @@
+./configure --prefix=/opt/ompi_3_1_5 --enable-orterun-prefix-by-default --enable-static --with-libfabric=/usr --with-psm=/usr --with-verbs=/usr
+./configure --prefix=/opt/ompi_3_1_5 --enable-orterun-prefix-by-default --enable-static
+./configure --prefix=/opt/ompi_3_1_5cu --enable-orterun-prefix-by-default --enable-static --with-cuda=/usr/local/cuda-10.0
+./configure --prefix=/opt/ompi_4_0_5cu --enable-orterun-prefix-by-default --enable-static --with-cuda=/usr/local/cuda-10.0 --with-libfabric=/usr --with-psm=/usr --with-verbs=/usr

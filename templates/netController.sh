@@ -121,11 +121,20 @@ function createChannel() {
 {%- endfor %}
 }
 
+function deployChaincode() {
+  chmod +x scripts/deployChaincode*.sh
+{%- for chaincode in chaincodes %}
+  scripts/deployChaincode{{chaincode.cc_name}}.sh $CLI_DELAY $MAX_RETRY $VERBOSE
+{%- endfor %}
+}
+
 MODE=$1
 if [ "${MODE}" == "up" ]; then
   netUp
 elif [ "${MODE}" == "createChannel" ]; then
   createChannel
+elif [ "${MODE}" == "deployChaincode" ]; then
+  deployChaincode
 else
   exit 0
 fi
