@@ -1,6 +1,6 @@
 import util
 import os
-def gen_configtx_conf(target_dir, data):
+def gen_core_config_conf(target_dir, data):
     if not os.path.exists(target_dir): 
         os.mkdir(target_dir)
     if not os.path.exists(os.path.join(target_dir, 'config')): 
@@ -8,7 +8,18 @@ def gen_configtx_conf(target_dir, data):
 
     util.render_template('config/configtx.yaml', 
         os.path.join(target_dir, 'config', 'configtx.yaml'), data)
+    util.render_template('config/orderer.yaml', 
+        os.path.join(target_dir, 'config', 'orderer.yaml'), data)
 
+    for peer in data['peerorgs']:
+        index = 0
+        for peernode in peer['peernodes']:
+            if not os.path.exists(os.path.join(target_dir, 'config-peer' + str(index) + '-' + peer['peer_name'].lower())): 
+                os.mkdir(os.path.join(target_dir, 'config-peer' + str(index) + '-' + peer['peer_name'].lower()))
+            util.render_template('config/core.yaml', 
+                os.path.join(target_dir, 'config-peer' + str(index) + '-' + peer['peer_name'].lower(), 'core.yaml'), 
+                {'core': data['core'], 'peer': peernode})
+            index += 1
 
 def gen_cryptogen_conf(target_dir, data):
     if not os.path.exists(target_dir): 
@@ -33,6 +44,8 @@ def gen_dockers_conf(target_dir, data):
         os.path.join(target_dir, 'docker', 'docker-compose-ca.yaml'), data)
     util.render_template('docker/docker-compose-base.yaml', 
         os.path.join(target_dir, 'docker', 'docker-compose-base.yaml'), data)
+    
+    util.render_template('.env', os.path.join(target_dir, '.env'), data)
 
 def gen_fabric_ca_server_conf(target_dir, data):
     if not os.path.exists(target_dir): 

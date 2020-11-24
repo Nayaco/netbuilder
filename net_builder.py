@@ -1,22 +1,26 @@
 #!python
 import subprocess, os
 import util
-# process = subprocess.Popen(['echo', 'More output'],
-#                      stdout=subprocess.PIPE, 
-#                      stderr=subprocess.PIPE)
-# stdout, stderr = process.communicate()
-# print(stdout, stderr)
+
 input_data = {
     'script_pwd': os.getcwd(),
     'force': False,
     'max_retry': 3,
     'cli_delay': 5,
+    'project_name': 'net',
     'image_tag': 'latest',
     'ca_image_tag': 'latest',
-    'database': 'leveldb',
+    'database': 'leveldb', 
     'ca_network_name': 'test',
     'base_network_name': 'test',
     'crypto_method': 'cryptogen',
+    'environment': [
+        ['MY_CC_VERSION', '1.0']
+    ],
+    'core': {
+        'id': 'aloha',
+        'network_id': 'dev'
+    },
     'tx': {
         'genesis_channel': 'system-channel',
         'genesis_profile': 'TwoOrgsOrdererGenesis',
@@ -37,9 +41,10 @@ input_data = {
     'chaincodes': [
         {
             'channel': 'mychannel',
-            'cc_name': 'fabcar',
-            'cc_path': os.getcwd() + '/test/chaincodes/fabcar',
-            'cc_lang': 'javascript',
+            'cc_name': 'basic',
+            'cc_path_origin': os.getcwd() + '/chaincodes/basic',
+            'cc_path': os.getcwd() + '/test/chaincodes/basic',
+            'cc_lang': 'go',
             'cc_version': '1.0',
             'cc_seq': '1',
             'init_func': 'initLedger',
@@ -136,7 +141,7 @@ env_vars["PATH"] = input_data['script_pwd'] + "bin:" + env_vars["PATH"]
 import create_configurations
 import create_script
 
-create_configurations.gen_configtx_conf('test', input_data)
+create_configurations.gen_core_config_conf('test', input_data)
 create_configurations.gen_cryptogen_conf('test', input_data)
 create_configurations.gen_dockers_conf('test', input_data)
 create_configurations.gen_fabric_ca_server_conf('test', input_data)
@@ -147,3 +152,10 @@ create_script.create_createChannel('test', input_data)
 create_script.create_DeployChaincode('test', input_data)
 create_script.create_netController('test', input_data)
 
+import run_script
+from run_script import LedgerBootError
+try:
+    controller = run_script.LedgerController(target_path=os.getcwd() + '/test', data=input_data)
+    controller.deployLedger()
+except LedgerBootError as e:
+    print(e.msg)

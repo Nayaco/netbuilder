@@ -7,3 +7,7 @@ organizations/fabric-ca/*/IssuerPublicKey
 organizations/fabric-ca/*/IssuerRevocationPublicKey
 organizations/fabric-ca/*/tls-cert.pem
 test
+chaincodes
+
+./__pycache__
+log.txt

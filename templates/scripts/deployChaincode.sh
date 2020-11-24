@@ -206,26 +206,31 @@ chaincodeInvokeInit() {
 	cat log.txt
 }
 
+FABRIC_CFG_PATH=$PWD/config-peer$(echo ${CC_PEER_MAIN[1]} | tr "A-Z" "a-z")-$(echo ${CC_PEER_MAIN[0]} | tr "A-Z" "a-z")
+
 packageChaincode ${CC_PEER_MAIN[0]} ${CC_PEER_MAIN[1]}
 
 for _peernode in "${CC_PEERS[@]}"; do
   peernode=($_peernode)
+  FABRIC_CFG_PATH=$PWD/config-peer$(echo ${peernode[1]} | tr "A-Z" "a-z")-$(echo ${peernode[0]} | tr "A-Z" "a-z")
   installChaincode ${peernode[0]} ${peernode[1]} 
 done
 queryInstalled ${CC_PEER_MAIN[0]} ${CC_PEER_MAIN[1]}
 
 for _peernode in "${CC_PEERS[@]}"; do
   peernode=($_peernode)
+  FABRIC_CFG_PATH=$PWD/config-peer$(echo ${peernode[1]} | tr "A-Z" "a-z")-$(echo ${peernode[0]} | tr "A-Z" "a-z")
   approveForMyOrg ${peernode[0]} ${peernode[1]} 
 done
 
 commitChaincodeDefinition
 for _peernode in "${CC_PEERS[@]}"; do
   peernode=($_peernode)
+  FABRIC_CFG_PATH=$PWD/config-peer$(echo ${peernode[1]} | tr "A-Z" "a-z")-$(echo ${peernode[0]} | tr "A-Z" "a-z")
   queryCommitted ${peernode[0]} ${peernode[1]} 
 done
 
-setGlobals $
+setGlobals ${CC_PEER_MAIN[0]} ${CC_PEER_MAIN[1]}
 if [ "$CC_INIT_FCN" != "NA" ]; then
   chaincodeInvokeInit
 fi

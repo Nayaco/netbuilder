@@ -12,8 +12,6 @@ DELAY="$1"
 MAX_RETRY="$2"
 VERBOSE="$3"
 
-FABRIC_CFG_PATH=${PWD}/config
-
 : ${DELAY:="3"}
 : ${MAX_RETRY:="3"}
 : ${VERBOSE:="false"}
@@ -107,8 +105,13 @@ updateAnchorPeers() {
   sleep $DELAY
 }
 
+FABRIC_CFG_PATH=${PWD}/config
+
 createChannelBlock
 createAncorPeerBlock
+
+FABRIC_CFG_PATH=$PWD/config-peer$(echo $CHANNEL_MAIN_NODE | tr "A-Z" "a-z")-$(echo $CHANNEL_MAIN_ORG | tr "A-Z" "a-z")
+
 createChannel
 
 ORG_ITER=0

@@ -1,8 +1,3 @@
-# Copyright IBM Corp. All Rights Reserved.
-#
-# SPDX-License-Identifier: Apache-2.0
-#
-
 version: '2'
 
 volumes:
@@ -86,6 +81,6 @@ services:
     ports:
       - {{ peernode.port }}:{{ peernode.port }}
     networks:
-      - test
+      - {{ base_network_name }}
 {%- endfor %}
 {%- endfor %}
