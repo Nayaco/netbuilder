@@ -9,5 +9,5 @@ organizations/fabric-ca/*/tls-cert.pem
 test
 chaincodes
 
-./__pycache__
+__pycache__
 log.txt
