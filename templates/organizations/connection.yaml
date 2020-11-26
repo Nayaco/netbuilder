@@ -1,0 +1,9 @@
+name: test-network-{{ peer.peer_name | lower }}
+version: 1.0.0
+client:
+  organization: {{ peer.peer_name }}
+  connection:
+    timeout:
+      peer:
+        endorser: '300'
+organizations:

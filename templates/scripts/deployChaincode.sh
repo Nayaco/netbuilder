@@ -131,30 +131,6 @@ approveForMyOrg() {
   cat log.txt
 }
 
-# checkCommitReadiness() {
-#   ORG=$1
-#   PEER=$2
-#   setGlobals $ORG $PEER
-#   local rc=1
-#   local COUNTER=1
-#   while [ $rc -ne 0 -a $COUNTER -lt $MAX_RETRY ]; do
-#     sleep $DELAY
-#     set -x
-#     peer lifecycle chaincode checkcommitreadiness \
-#       --channelID $CHANNEL_NAME \
-#       --name ${CC_NAME} --version ${CC_VERSION} \
-#       --sequence ${CC_SEQUENCE} ${INIT_REQUIRED} ${CC_END_POLICY} ${CC_COLL_CONFIG} --output json >&log.txt
-#     res=$?
-#     set +x
-#     let rc=0
-#     for var in "$@"; do
-#       grep "$var" log.txt &>/dev/null || let rc=1
-#     done
-#     COUNTER=$(expr $COUNTER + 1)
-#   done
-#   cat log.txt
-# }
-
 commitChaincodeDefinition() {
 	set -x
   # TODO: add real availiable orderer address on ethernet

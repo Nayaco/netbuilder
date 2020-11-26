@@ -2,11 +2,8 @@
 Organizations:
   - &{{ orderer.orderer_name }}Org
     Name: {{ orderer.orderer_name }}Org
-    # ID to load the MSP definition as
     ID: {{ orderer.orderer_name }}MSP
-    # MSPDir is the filesystem path which contains the MSP configuration
     MSPDir: ../organizations/ordererOrganizations/{{ orderer.orderer_domain }}/msp
-    # Policies defines the set of policies at this level of the config tree
     Policies:
       Readers:
         Type: Signature
@@ -94,7 +91,6 @@ Orderer: &OrdererDefaults
     AbsoluteMaxBytes: 99 MB
     PreferredMaxBytes: 512 KB
   Organizations:
-  # Policies defines the set of policies at this level of the config tree
   Policies:
     Readers:
       Type: ImplicitMeta
@@ -111,17 +107,13 @@ Orderer: &OrdererDefaults
 
 ################################################################################
 Channel: &ChannelDefaults
-  # Policies defines the set of policies at this level of the config tree
   Policies:
-    # Who may invoke the 'Deliver' API
     Readers:
       Type: ImplicitMeta
       Rule: "ANY Readers"
-    # Who may invoke the 'Broadcast' API
     Writers:
       Type: ImplicitMeta
       Rule: "ANY Writers"
-    # By default, who may modify elements at this config level
     Admins:
       Type: ImplicitMeta
       Rule: "MAJORITY Admins"
