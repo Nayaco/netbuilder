@@ -3,6 +3,7 @@ import subprocess, os
 import util
 
 input_data = {
+    'target_path': 'test', 
     'script_pwd': os.getcwd(),
     'force': False,
     'max_retry': 3,
@@ -138,24 +139,24 @@ util.data_autofill(input_data)
 env_vars = os.environ.copy()
 env_vars["PATH"] = input_data['script_pwd'] + "bin:" + env_vars["PATH"]
 
-import create_configurations
-import create_script
+import createConfigurations
+import createScript
 
-create_configurations.gen_core_config_conf('test', input_data)
-create_configurations.gen_cryptogen_conf('test', input_data)
-create_configurations.gen_dockers_conf('test', input_data)
-create_configurations.gen_fabric_ca_server_conf('test', input_data)
+createConfigurations.gen_core_config_conf('test', input_data)
+createConfigurations.gen_cryptogen_conf('test', input_data)
+createConfigurations.gen_dockers_conf('test', input_data)
+createConfigurations.gen_fabric_ca_server_conf('test', input_data)
 
-create_script.create_registerEnroll('test', input_data)
-create_script.create_envVars('test', input_data)
-create_script.create_createChannel('test', input_data)
-create_script.create_DeployChaincode('test', input_data)
-create_script.create_netController('test', input_data)
+createScript.create_registerEnroll('test', input_data)
+createScript.create_envVars('test', input_data)
+createScript.create_createChannel('test', input_data)
+createScript.create_DeployChaincode('test', input_data)
+createScript.create_netController('test', input_data)
 
-import run_script
-from run_script import LedgerBootError
+import ledgerController
+from ledgerController import LedgerBootError
 try:
-    controller = run_script.LedgerController(target_path=os.getcwd() + '/test', data=input_data)
+    controller = ledgerController.LedgerController(target_path=os.getcwd() + '/test', data=input_data)
     controller.deployLedger()
 except LedgerBootError as e:
     print(e.msg)

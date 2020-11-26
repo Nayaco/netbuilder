@@ -69,6 +69,16 @@ class LedgerController:
         return 0
     
     def deployLedger(self):
+        self._run_command('docker', ['ps'])
+        if self.stdout.find('orderer') != -1:
+            return
+        pwd = os.getcwd()
+        os.chdir(self.target_path)
+        os.chmod('./netController.sh', stat.S_IXOTH | stat.S_IRWXU | stat.S_IXGRP | stat.S_IRGRP | stat.S_IROTH)
+        if(os.path.exists(self.target_path)):
+            self.construct_network() 
+            os.chdir(pwd)
+            return
         init_retry = 0
         while(not self.initialed and init_retry < 3): 
             self.init_docker()
@@ -78,9 +88,6 @@ class LedgerController:
         for chaincode in self.data['chaincodes']:
             os.makedirs(os.path.dirname(chaincode['cc_path']), exist_ok=True)
             self._run_command('cp', ['-r', chaincode['cc_path_origin'], chaincode['cc_path']])
-        pwd = os.getcwd()
-        os.chdir(self.target_path)
-        os.chmod('./netController.sh', stat.S_IXOTH | stat.S_IRWXU | stat.S_IXGRP | stat.S_IRGRP | stat.S_IROTH)
         if(self.construct_network()): 
             os.chdir(pwd)
             raise LedgerBootError('construct network on docker failed:' + self.stderr)
@@ -93,5 +100,3 @@ class LedgerController:
             os.chdir(pwd)
             raise LedgerBootError('deploy chaincodes on channels failed:' + self.stderr)
         os.chdir(pwd)
-
-    
