@@ -135,10 +135,6 @@ input_data = {
 
 util.data_autofill(input_data)
 
-
-env_vars = os.environ.copy()
-env_vars["PATH"] = input_data['script_pwd'] + "bin:" + env_vars["PATH"]
-
 import createConfigurations
 import createScript
 
