@@ -1,7 +1,6 @@
 #!python
 import subprocess, os
-import util
-
+import waver.util as util
 input_data = {
     'target_path': 'test', 
     'script_pwd': os.getcwd(),
@@ -27,16 +26,27 @@ input_data = {
         'genesis_profile': 'TwoOrgsOrdererGenesis',
         'channel_profiles': [
             {
-                'profile_name': 'TwoOrgsChannel',
+                'profile_name': 'TwoOrgsChannel1',
+                'consortium_name': 'SampleConsortium1',
                 'peerorgs': ['Org1', 'Org2']
+            },
+            {
+                'profile_name': 'TwoOrgsChannel2',
+                'consortium_name': 'SampleConsortium2',
+                'peerorgs': ['Org2', 'Org3']
             }
         ]
     },
     'channels': [
         {
             'channel_name': 'mychannel',
-            'channel_profile': 'TwoOrgsChannel',
+            'channel_profile': 'TwoOrgsChannel1',
             'peerorgs': ['Org1', 'Org2']
+        },
+        {
+            'channel_name': 'mychannel2',
+            'channel_profile': 'TwoOrgsChannel2',
+            'peerorgs': ['Org2', 'Org3']
         }
     ],
     'chaincodes': [
@@ -70,6 +80,12 @@ input_data = {
             'peer_affiliation': [
                 'department1'
             ]
+        },
+        {
+            'peer': 'org3',
+            'peer_affiliation': [
+                'department1'
+            ]
         }
     ],
     'orderer': {
@@ -91,7 +107,7 @@ input_data = {
         {
             'peer_name': 'Org1',
             'peer_domain': 'example.com',
-            'peer_nodes': 1,
+            'peer_nodes': 2,
             'peer_users': 1,
             'orgCA_admin': 'org1admin',
             'orgCA_pw': 'org1pw',
@@ -100,6 +116,11 @@ input_data = {
                     'port': 7051,
                     'CCport': 7052,
                     'CApw': 'peer0pw'
+                },
+                {
+                    'port': 7061,
+                    'CCport': 7062,
+                    'CApw': 'peer1pw'
                 }
             ],
             'CA': {
@@ -130,13 +151,34 @@ input_data = {
                 'adminpw': 'adminpw'
             }
         },
+        {
+            'peer_name': 'Org3',
+            'peer_domain': 'example.com',
+            'peer_nodes': 1,
+            'peer_users': 1,
+            'orgCA_admin': 'org3admin',
+            'orgCA_pw': 'org3pw',
+            'peernodes': [
+                {
+                    'port': 8251,
+                    'CCport': 8252,
+                    'CApw': 'peer0pw'
+                }
+            ],
+            'CA': {
+                'port': 8254,
+                'debug': False,
+                'admin': 'admin',
+                'adminpw': 'adminpw'
+            }
+        },
     ],
 }
 
 util.data_autofill(input_data)
 
-import createConfigurations
-import createScript
+import waver.createConfigurations as createConfigurations
+import waver.createScript as createScript
 
 createConfigurations.gen_core_config_conf('test', input_data)
 createConfigurations.gen_cryptogen_conf('test', input_data)
@@ -149,8 +191,8 @@ createScript.create_createChannel('test', input_data)
 createScript.create_DeployChaincode('test', input_data)
 createScript.create_netController('test', input_data)
 
-import ledgerController
-from ledgerController import LedgerBootError
+import waver.ledgerController as ledgerController
+from waver.ledgerController import LedgerBootError
 try:
     controller = ledgerController.LedgerController(target_path=os.getcwd() + '/test', data=input_data)
     controller.deployLedger()

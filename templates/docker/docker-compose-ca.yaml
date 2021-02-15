@@ -3,6 +3,7 @@ version: '2'
 networks:
   {{ ca_network_name }}:
 
+{%- if crypto_method == 'cryptogen' %}
 services:
   ca_{{ orderer.orderer_name | lower }}:
     image: hyperledger/fabric-ca:$IMAGE_TAG
@@ -21,7 +22,6 @@ services:
       - {{ca_network_name }}
 
 {%- for peer in peerorgs %}
-
   ca_{{ peer.peer_name | lower }}:
     image: hyperledger/fabric-ca:$IMAGE_TAG
     environment:
@@ -38,3 +38,4 @@ services:
     networks:
       - {{ ca_network_name }}
 {%- endfor %}
+{%- endif %}

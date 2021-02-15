@@ -132,14 +132,17 @@ Profiles:
       Capabilities:
         <<: *OrdererCapabilities
     Consortiums:
-      SampleConsortium:
+{%- for channel_profile in tx.channel_profiles %}
+      {{ channel_profile.consortium_name }}:
         Organizations:
-{%- for peer in peerorgs %}
-          - *{{ peer.peer_name }}
+{%- for peer in channel_profile.peerorgs %}
+          - *{{ peer }}
 {%- endfor %}
+{%- endfor %}
+
 {%- for channel_profile in tx.channel_profiles %}
   {{ channel_profile.profile_name }}:
-    Consortium: SampleConsortium
+    Consortium: {{ channel_profile.consortium_name }}
     <<: *ChannelDefaults
     Application:
       <<: *ApplicationDefaults

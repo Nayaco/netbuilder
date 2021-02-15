@@ -1,4 +1,4 @@
-import util
+import waver.util as util
 import os
 def gen_core_config_conf(target_dir, data):
     if not os.path.exists(target_dir): 
@@ -45,7 +45,8 @@ def gen_dockers_conf(target_dir, data):
     util.render_template('docker/docker-compose-base.yaml', 
         os.path.join(target_dir, 'docker', 'docker-compose-base.yaml'), data)
     
-    util.render_template('.env', os.path.join(target_dir, '.env'), data)
+    util.render_template('docker/.env', 
+        os.path.join(target_dir, 'docker', '.env'), data)
 
 def gen_fabric_ca_server_conf(target_dir, data):
     if not os.path.exists(target_dir): 
