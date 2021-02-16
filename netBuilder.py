@@ -1,5 +1,6 @@
 #!python
-import subprocess, os
+import subprocess
+import os
 import waver.util as util
 input_data = {
     'target_path': 'test', 
@@ -177,19 +178,19 @@ input_data = {
 
 util.data_autofill(input_data)
 
-import waver.createConfigurations as createConfigurations
-import waver.createScript as createScript
+# import waver.createConfigurations as createConfigurations
+# import waver.createScript as createScript
 
-createConfigurations.gen_core_config_conf('test', input_data)
-createConfigurations.gen_cryptogen_conf('test', input_data)
-createConfigurations.gen_dockers_conf('test', input_data)
-createConfigurations.gen_fabric_ca_server_conf('test', input_data)
+# createConfigurations.gen_core_config_conf('test', input_data)
+# createConfigurations.gen_cryptogen_conf('test', input_data)
+# createConfigurations.gen_dockers_conf('test', input_data)
+# createConfigurations.gen_fabric_ca_server_conf('test', input_data)
 
-createScript.create_registerEnroll('test', input_data)
-createScript.create_envVars('test', input_data)
-createScript.create_createChannel('test', input_data)
-createScript.create_DeployChaincode('test', input_data)
-createScript.create_netController('test', input_data)
+# createScript.create_registerEnroll('test', input_data)
+# createScript.create_envVars('test', input_data)
+# createScript.create_createChannel('test', input_data)
+# createScript.create_DeployChaincode('test', input_data)
+# createScript.create_netController('test', input_data)
 
 import waver.ledgerController as ledgerController
 from waver.ledgerController import LedgerBootError
