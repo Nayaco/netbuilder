@@ -14,6 +14,39 @@ from flask import request
 
 app = Flask(__name__)
 
+input_meta = {
+    'script_pwd': os.getcwd(),
+    'force': False,
+    'max_retry': 3,
+    'cli_delay': 5,
+    'image_tag': 'latest',
+    'ca_image_tag': 'latest',
+    'database': 'leveldb',
+    'crypto_method': 'cryptogen',
+    'environment': [
+        ['CC_VERSION', '1.0']
+    ],
+    'core': {
+        'id': 'aloha',
+        'network_id': 'dev'
+    },
+    'tx': {
+        'genesis_channel': 'system-channel',
+        'genesis_profile': 'OrdererGenesis',
+        'channel_profiles': [],
+    },
+    'channels': [],
+    'chaincodes': [],
+    'affiliations': [],
+    'orderer': { },
+    'peerorgs': [],
+}
+
+@app.route("/generate", methods=['POST'])
+def generate():
+    input_data = request.get_json()
+    
+
 @app.route("/build", methods=['POST'])
 def buildn():
     input_data = request.get_json()
