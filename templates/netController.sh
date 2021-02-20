@@ -115,17 +115,21 @@ function createChannel() {
   if [ ! -d "organizations/peerOrganizations" ]; then
     netUp
   fi
+{%- if channels|length > 0 %}
   chmod +x scripts/createChannel*.sh 
 {%- for channel in channels %}
   scripts/createChannel{{ channel.channel_name }}.sh $CLI_DELAY $MAX_RETRY $VERBOSE
 {%- endfor %}
+{%- endif %}
 }
 
 function deployChaincode() {
+{%- if chaincodes|length > 0 %}
   chmod +x scripts/deployChaincode*.sh
 {%- for chaincode in chaincodes %}
   scripts/deployChaincode{{chaincode.cc_name}}.sh $CLI_DELAY $MAX_RETRY $VERBOSE
 {%- endfor %}
+{%- endif %}
 }
 
 MODE=$1

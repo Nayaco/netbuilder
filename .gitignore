@@ -8,6 +8,6 @@ organizations/fabric-ca/*/IssuerRevocationPublicKey
 organizations/fabric-ca/*/tls-cert.pem
 test
 chaincodes
-
+static
 __pycache__
 log.txt

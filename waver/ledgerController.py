@@ -28,8 +28,8 @@ class LedgerController:
     initialed = False
 
     data = {}
-    def __init__(self, target_path='./', env={}, logfile=os.getcwd() + '/log.txt', data={}): 
-        self.target_path = target_path
+    def __init__(self, target_path=None, env={}, logfile=os.getcwd() + '/log.txt', data={}): 
+        self.target_path = data['script_pwd'] + '/' + data['target_path'] if target_path is None else target_path
         self.environment = env
         self.runtime_env = {**self.runtime_env, **self.environment}
         self.logfile = logfile

@@ -8,11 +8,19 @@ import waver.createScript as createScript
 import waver.ledgerController as ledgerController
 from waver.ledgerController import LedgerBootError
 
-from flask import Flask
+from flask import Flask, render_template, session, copy_current_request_context
 from flask import jsonify
 from flask import request
+from flask_cors import CORS
+# from flask_socketio import SocketIO
+# from flask_socketio import emit
+# from flask_socketio import disconnect
+# from threading import Lock
 
 app = Flask(__name__)
+cors = CORS(app, resources={r"/api/": {"origins": ""}})
+# socket_app = SocketIO(app, async_mode='eventlet')
+# thread_lock = Lock()
 
 input_meta = {
     'script_pwd': os.getcwd(),
@@ -59,7 +67,6 @@ port_end = 8000
 port_busy = set()
 port_free = set(range(port_from, port_end))
 
-
 def _get_free():
     try:
         p = port_free.pop()
@@ -71,6 +78,10 @@ def _free_ports(port_list):
     port_free.update(port_list)
     for i in port_list:
         port_busy.discard(i)
+
+# @app.route('/')
+# def index():
+#     return render_template('index.html')
 
 @app.route("/generate", methods=['POST'])
 def generate():
@@ -95,8 +106,8 @@ def generate():
             return jsonify({'status': 'PORTS BUSY'})
         input_data['peerorgs'].append({
             'peer_name': 'ORG' + str(peer['index']),
-            'peer_domain': 'example.com',
-            'peer_node': peer['nodes'],
+            'peer_domain': 'blockcase.org',
+            'peer_nodes': peer['nodes'],
             'peer_users': 1,
             'orgCA_admin': 'org' + str(peer['index']) + 'admin',
             'orgCA_pw': 'org' + str(peer['index']) + 'pw',
@@ -104,7 +115,7 @@ def generate():
                 {
                     'port': port_fororg.pop(),
                     'CCport': port_fororg.pop(),
-                    'capw': 'peer' + str(j) + 'pw'
+                    'CApw': 'peer' + str(j) + 'pw'
                 } 
                 for j in range(0, peer['nodes']) 
             ],
@@ -132,31 +143,21 @@ def generate():
             'consortium_name': 'ChanConsortium' + str(i),
             'peerorgs': ['ORG' + str(j) for j in channel['peerorgs']]
         })
-    print(json.dumps(input_data, indent=2))
-    return jsonify({'status': 'OK'})
-    
-@app.route("/build", methods=['POST'])
-def buildn():
-    input_data = request.get_json()
     util.data_autofill(input_data)
-    print(input_data['target_path'])
-    if not os.path.exists(os.getcwd() + '/' + input_data['target_path']):
-        createConfigurations.gen_core_config_conf(input_data['target_path'], input_data)
-        createConfigurations.gen_cryptogen_conf(input_data['target_path'], input_data)
-        createConfigurations.gen_dockers_conf(input_data['target_path'], input_data)
-        createConfigurations.gen_fabric_ca_server_conf(input_data['target_path'], input_data)
-
-        createScript.create_registerEnroll(input_data['target_path'], input_data)
-        createScript.create_envVars(input_data['target_path'], input_data)
-        createScript.create_createChannel(input_data['target_path'], input_data)
-        createScript.create_DeployChaincode(input_data['target_path'], input_data)
-        createScript.create_netController(input_data['target_path'], input_data)
     try:
-        controller = ledgerController.LedgerController(target_path=os.getcwd() + '/test', data=input_data)
+        controller = ledgerController.LedgerController(data=input_data)
         controller.deployLedger()
     except LedgerBootError as e:
         print(e.msg)
-
     return jsonify({'status': 'OK'})
 
-app.run(debug=True, port=8081)
+# @socket_app.on('connect', namespace='/log')
+# def socket_connect():
+#     session['receive_count'] = session.get('receive_count', 0) + 1
+#     emit('my_response',
+#          {'data': 'data', 'count': session['receive_count']})
+
+
+if __name__ == '__main__':
+    # socket_app.run(app, debug=True, port=8081)
+    app.run(debug=True, port=8081)
