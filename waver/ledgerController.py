@@ -48,11 +48,12 @@ class LedgerController:
                 env=self.runtime_env)
         _stdout = ''
         if not quiet:
-            with open(self.logfile, 'w') as log:
+            with open(self.logfile, 'a+') as log:
                 for line in process.stdout:
                     sys.stdout.write(line.decode('utf-8'))
                     _stdout = _stdout + line.decode('utf-8')
                     log.write(line.decode('utf-8'))
+                    log.flush()
         _stdout_, _stderr = process.communicate()
         self.stdout = _stdout
         return process.returncode
@@ -93,9 +94,9 @@ class LedgerController:
         return 0
     
     def deployLedger(self):
-        self._run_command('docker', ['ps'])
-        if self.stdout.find('orderer') != -1:
-            return
+        # self._run_command('docker', ['ps'])
+        # if self.stdout.find('orderer') != -1:
+        #     return
         pwd = os.getcwd()
         
         if(os.path.exists(self.target_path)):
@@ -120,10 +121,11 @@ class LedgerController:
         os.chdir(self.target_path)
         os.chmod('./netController.sh', stat.S_IXOTH | stat.S_IRWXU | stat.S_IXGRP | stat.S_IRGRP | stat.S_IROTH)
 
-        init_retry = 0
-        while(not self.initialed and init_retry < 3): 
-            self.init_docker()
-            init_retry += 1
+        # init_retry = 0
+        # while(not self.initialed and init_retry < 3): 
+        #     self.init_docker()
+        #     init_retry += 1
+        self.initialed = True
         if (not self.initialed):
             raise LedgerBootError('initialize docker failed')
         for chaincode in self.data['chaincodes']:

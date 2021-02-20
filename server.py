@@ -11,16 +11,17 @@ from waver.ledgerController import LedgerBootError
 from flask import Flask, render_template, session, copy_current_request_context
 from flask import jsonify
 from flask import request
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 # from flask_socketio import SocketIO
 # from flask_socketio import emit
 # from flask_socketio import disconnect
 # from threading import Lock
 
 app = Flask(__name__)
-cors = CORS(app, resources={r"/api/": {"origins": ""}})
+CORS(app, supports_credentials=True)
 # socket_app = SocketIO(app, async_mode='eventlet')
 # thread_lock = Lock()
+workdir = os.getcwd()
 
 input_meta = {
     'script_pwd': os.getcwd(),
@@ -84,6 +85,7 @@ def _free_ports(port_list):
 #     return render_template('index.html')
 
 @app.route("/generate", methods=['POST'])
+@cross_origin()
 def generate():
     origin_input = request.get_json()
     input_data = copy.deepcopy(input_meta)
@@ -92,6 +94,7 @@ def generate():
     input_data['ca_network_name'] = 'net' + origin_input['project']
     input_data['base_network_name'] = 'net' + origin_input['project']
     input_data['orderer']['port'] = _get_free()
+    input_data['orderer']['orderer_domain'] = 'blockcase'+ origin_input['project'] +'.org'
     if input_data['orderer']['port'] == -1: 
         _free_ports([input_data['orderer']['port']])
         return jsonify({'status': 'PORTS BUSY'})
@@ -106,7 +109,7 @@ def generate():
             return jsonify({'status': 'PORTS BUSY'})
         input_data['peerorgs'].append({
             'peer_name': 'ORG' + str(peer['index']),
-            'peer_domain': 'blockcase.org',
+            'peer_domain': 'blockcase'+ origin_input['project'] +'.org',
             'peer_nodes': peer['nodes'],
             'peer_users': 1,
             'orgCA_admin': 'org' + str(peer['index']) + 'admin',
@@ -145,12 +148,23 @@ def generate():
         })
     util.data_autofill(input_data)
     try:
-        controller = ledgerController.LedgerController(data=input_data)
+        controller = ledgerController.LedgerController(data=input_data, logfile=workdir + '/' + origin_input['project']+'_log')
         controller.deployLedger()
     except LedgerBootError as e:
         print(e.msg)
     return jsonify({'status': 'OK'})
 
+@app.route("/log", methods=['GET'])
+@cross_origin()
+def get_log():
+    project = request.args.get('project')
+    line_from = int(request.args.get('line_from'))
+    line_num = 0
+    log_lines = []
+    with open(workdir + '/' + project + '_log', 'r') as f:
+        lines = f.readlines()
+        log_lines = lines[line_from:]
+    return jsonify({'log': log_lines})
 # @socket_app.on('connect', namespace='/log')
 # def socket_connect():
 #     session['receive_count'] = session.get('receive_count', 0) + 1

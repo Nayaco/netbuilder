@@ -124,6 +124,7 @@ function createChannel() {
 }
 
 function deployChaincode() {
+  echo "Deploy Chaincode"
 {%- if chaincodes|length > 0 %}
   chmod +x scripts/deployChaincode*.sh
 {%- for chaincode in chaincodes %}
