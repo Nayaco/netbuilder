@@ -1,4 +1,4 @@
-# NETBUILDER
+# NET-WEAVER
 A hyperledger network constructor.
 
 ## build
