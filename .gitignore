@@ -11,3 +11,4 @@ chaincodes
 static
 __pycache__
 log.txt
+bin/
