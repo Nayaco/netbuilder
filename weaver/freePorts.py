@@ -20,6 +20,6 @@ class FreePorts(object):
             return -1
     def free_ports(self, port_list):
         self.port_free.extend(port_list)
-        self.port_busy = filter(lambda p: p not in self.port_free, self.port_busy)
+        self.port_busy = list(filter(lambda p: p not in self.port_free, self.port_busy))
         with open(self.portfile, 'w') as f:
             f.writelines([str(i) for i in self.port_busy])

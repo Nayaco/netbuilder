@@ -1,4 +1,5 @@
 #!python
+from genericpath import exists
 import os, glob, json, copy
 import weaver.util as util
 import weaver.createConfigurations as createConfigurations
@@ -31,6 +32,9 @@ fports = freePorts.FreePorts()
 def generate():
     origin_input = request.get_json()
 
+    if ledgerStore.exist(origin_input['project']) :
+        print('project exists')
+        return jsonify({'status': 'Exist'})
     input_data = copy.deepcopy(inputmeta)
     input_data['target_path'] = origin_input['project']
     input_data['project_name'] = origin_input['project']
@@ -155,6 +159,10 @@ def remove_net():
                 logfile='%s/%s_log' % (workdir, project))
         controller.shutdownLedger()
         controller.removeLedger()
+        print([input_data['orderer']['port']] + \
+            [i['CA']['port'] for i in input_data['peerorgs']] + \
+            [j['port'] for i in input_data['peerorgs'] for j in i['peernodes']] + \
+            [j['CCport'] for i in input_data['peerorgs'] for j in i['peernodes']])
         fports.free_ports([input_data['orderer']['port']] + \
             [i['CA']['port'] for i in input_data['peerorgs']] + \
             [j['port'] for i in input_data['peerorgs'] for j in i['peernodes']] + \
