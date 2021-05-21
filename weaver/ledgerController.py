@@ -1,7 +1,7 @@
-import subprocess, os, sys, stat, time
+import subprocess, os, sys, stat, time, shutil
 
-import waver.createConfigurations as createConfigurations
-import waver.createScript as createScript
+import weaver.createConfigurations as createConfigurations
+import weaver.createScript as createScript
 
 class LedgerBootError(RuntimeError):
     def __init__(self, msg):
@@ -18,7 +18,7 @@ class ShellColors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-class LedgerController:
+class LedgerController(object):
     target_path = './'
     environment = {}
     runtime_env = os.environ.copy() 
@@ -35,7 +35,7 @@ class LedgerController:
         self.logfile = logfile
         self.data = data
 
-    def set_env(self, env_key, env_val=''): 
+    def _set_env(self, env_key, env_val=''): 
         self.environment[env_key] = env_val
         self.runtime_env[env_key] = env_val
     
@@ -58,7 +58,7 @@ class LedgerController:
         self.stdout = _stdout
         return process.returncode
 
-    def init_docker(self):
+    def _init_docker(self):
         containers = [self.data['orderer']['orderer_name'].lower() + '.' + self.data['orderer']['orderer_domain']]
         for peer in self.data['peerorgs']:
             containers = containers + [
@@ -78,32 +78,44 @@ class LedgerController:
         self.initialed = True
         return 0
         
-    def construct_network(self):
+    def _bringup_network(self):
         if(self._run_command('./netController.sh', ['up'])):
             return 1
         return 0
+    
+    def _shutdown_network(self):
+        if(self._run_command('./netController.sh', ['down'])):
+            return 1
+        return 0
 
-    def construct_channels(self):
+    def _suspend_network(self):
+        if(self._run_command('./netController.sh', ['suspend'])):
+            return 1
+        return 0
+
+    def _wakeup_network(self):
+        if(self._run_command('./netController.sh', ['wakeup'])):
+            return 1
+        return 0
+
+    def _construct_channels(self):
         if(self._run_command('./netController.sh', ['createChannel'])):
             return 1
         return 0
     
-    def deploy_chaincodes(self):
+    def _deploy_chaincodes(self):
         if(self._run_command('./netController.sh', ['deployChaincode'])):
             return 1
         return 0
     
     def deployLedger(self):
-        # self._run_command('docker', ['ps'])
-        # if self.stdout.find('orderer') != -1:
-        #     return
         pwd = os.getcwd()
         
         if(os.path.exists(self.target_path)):
             print('\n' + ShellColors.BLUE + '[Ledger Controller]' + ShellColors.ENDC + ':Starting Container' + '\n')
             os.chdir(self.target_path)
             self.initialed = True
-            self.construct_network()
+            self._bringup_network()
             os.chdir(pwd)
             return
             
@@ -121,28 +133,65 @@ class LedgerController:
         os.chdir(self.target_path)
         os.chmod('./netController.sh', stat.S_IXOTH | stat.S_IRWXU | stat.S_IXGRP | stat.S_IRGRP | stat.S_IROTH)
 
-        # init_retry = 0
-        # while(not self.initialed and init_retry < 3): 
-        #     self.init_docker()
-        #     init_retry += 1
         self.initialed = True
         if (not self.initialed):
             raise LedgerBootError('initialize docker failed')
         for chaincode in self.data['chaincodes']:
             os.makedirs(os.path.dirname(chaincode['cc_path']), exist_ok=True)
             self._run_command('cp', ['-r', chaincode['cc_path_origin'], chaincode['cc_path']])
-        if(self.construct_network()): 
+        if(self._bringup_network()): 
             os.chdir(pwd)
             raise LedgerBootError('construct network on docker failed:' + self.stderr)
         time.sleep(1)
 
         print('\n' + ShellColors.GREEN + '[Ledger Controller]' + ShellColors.ENDC + ':Deploying Channel' + '\n')
         
-        if(self.construct_channels()):
+        if(self._construct_channels()):
             os.chdir(pwd)
             raise LedgerBootError('deploy channels failed:' + self.stderr)
         time.sleep(1)
-        if(self.deploy_chaincodes()):
+        if(self._deploy_chaincodes()):
             os.chdir(pwd)
             raise LedgerBootError('deploy chaincodes on channels failed:' + self.stderr)
         os.chdir(pwd)
+    def activeLedger(self):
+        pwd = os.getcwd()
+        if(os.path.exists(self.target_path)):
+            print('\n' + ShellColors.BLUE + '[Ledger Controller]' + ShellColors.ENDC + ':Starting Container' + '\n')
+            os.chdir(self.target_path)
+            self._wakeup_network()
+            os.chdir(pwd)
+            return 0
+        else:
+            print('\n' + ShellColors.FAIL + '[Ledger Controller]' + ShellColors.ENDC + ':Starting Container Failed, Ledger Not Exist' + '\n')
+            os.chdir(pwd)
+            return 1
+    def suspendLedger(self):
+        pwd = os.getcwd()
+        if(os.path.exists(self.target_path)):
+            print('\n' + ShellColors.BLUE + '[Ledger Controller]' + ShellColors.ENDC + ':Suspending Container' + '\n')
+            os.chdir(self.target_path)
+            self._suspend_network()
+            os.chdir(pwd)
+            return 0
+        else:
+            print('\n' + ShellColors.FAIL + '[Ledger Controller]' + ShellColors.ENDC + ':Suspending Container Failed, Ledger Not Exist' + '\n')
+            os.chdir(pwd)
+            return 1
+    def shutdownLedger(self):
+        pwd = os.getcwd()
+        if(os.path.exists(self.target_path)):
+            print('\n' + ShellColors.BLUE + '[Ledger Controller]' + ShellColors.ENDC + ':Shutting Down Container' + '\n')
+            os.chdir(self.target_path)
+            self._shutdown_network()
+            os.chdir(pwd)
+            return 0
+        else:
+            print('\n' + ShellColors.FAIL + '[Ledger Controller]' + ShellColors.ENDC + ':Shutting Down Container Failed, Ledger Not Exist' + '\n')
+            os.chdir(pwd)
+            return 1
+
+    def removeLedger(self):
+        if(os.path.exists(self.target_path)):
+            shutil.rmtree(self.target_path)
+            os.remove(self.logfile)

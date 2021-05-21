@@ -1,4 +1,4 @@
-import waver.util as util
+import weaver.util as util
 import os
 def gen_core_config_conf(target_dir, data):
     if not os.path.exists(target_dir): 

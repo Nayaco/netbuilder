@@ -1,7 +1,7 @@
 #!python
 import subprocess
 import os
-import waver.util as util
+import weaver.util as util
 input_data = {
     'target_path': 'test', 
     'script_pwd': os.getcwd(),
@@ -178,8 +178,8 @@ input_data = {
 
 util.data_autofill(input_data)
 
-# import waver.createConfigurations as createConfigurations
-# import waver.createScript as createScript
+# import weaver.createConfigurations as createConfigurations
+# import weaver.createScript as createScript
 
 # createConfigurations.gen_core_config_conf('test', input_data)
 # createConfigurations.gen_cryptogen_conf('test', input_data)
@@ -192,8 +192,8 @@ util.data_autofill(input_data)
 # createScript.create_DeployChaincode('test', input_data)
 # createScript.create_netController('test', input_data)
 
-import waver.ledgerController as ledgerController
-from waver.ledgerController import LedgerBootError
+import weaver.ledgerController as ledgerController
+from weaver.ledgerController import LedgerBootError
 try:
     controller = ledgerController.LedgerController(target_path=os.getcwd() + '/test', data=input_data)
     controller.deployLedger()

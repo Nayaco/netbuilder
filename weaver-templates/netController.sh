@@ -2,7 +2,7 @@
 
 export FABRIC_CFG_PATH=${PWD}/config
 export VERBOSE=false
-export PATH=${PWD}/../bin:$PATH
+export PATH={{ binaray_pwd }}:$PATH
 
 . ./scripts/envVars.sh
 
@@ -101,7 +101,7 @@ function netUp() {
     fi
     COMPOSE_FILES="-f ${COMPOSE_FILE_BASE}"
     if [ "${DATABASE}" == "couchdb" ]; then
-        COMPOSE _FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_COUCH}"
+        COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_COUCH}"
     fi
     IMAGE_TAG=$IMAGETAG docker-compose ${COMPOSE_FILES} up -d 2>&1
     docker ps -a
@@ -109,6 +109,30 @@ function netUp() {
         echo "Unable to start network"
         exit 1
     fi
+}
+
+function netUpDown() {
+    COMPOSE_FILES="-f ${COMPOSE_FILE_BASE}"
+    if [ "${DATABASE}" == "couchdb" ]; then
+        COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_COUCH}"
+    fi
+    IMAGE_TAG=$IMAGETAG docker-compose ${COMPOSE_FILES} start 2>&1
+}
+
+function netSoftDown() {
+    COMPOSE_FILES="-f ${COMPOSE_FILE_BASE}"
+    if [ "${DATABASE}" == "couchdb" ]; then
+        COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_COUCH}"
+    fi
+    IMAGE_TAG=$IMAGETAG docker-compose ${COMPOSE_FILES} stop 2>&1
+}
+
+function netDown() {
+    COMPOSE_FILES="-f ${COMPOSE_FILE_BASE}"
+    if [ "${DATABASE}" == "couchdb" ]; then
+        COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_COUCH}"
+    fi
+    IMAGE_TAG=$IMAGETAG docker-compose ${COMPOSE_FILES} down --volumes --remove-orphans 2>&1
 }
 
 function createChannel() {
@@ -136,6 +160,12 @@ function deployChaincode() {
 MODE=$1
 if [ "${MODE}" == "up" ]; then
   netUp
+elif [ "${MODE}" == "down" ]; then
+  netDown
+elif [ "${MODE}" == "suspend" ]; then
+  netSoftDown
+elif [ "${MODE}" == "wakeup" ]; then
+  netSoftUp
 elif [ "${MODE}" == "createChannel" ]; then
   createChannel
 elif [ "${MODE}" == "deployChaincode" ]; then
