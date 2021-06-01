@@ -137,6 +137,16 @@ def list_nets():
     nets = [ledgerStore[key] for key in ledgerStore.items()]
     return jsonify({'status': 'OK', 'networks': nets})
 
+@app.route("/get", methods=['GET'])
+@cross_origin()
+def get_net():
+    project = request.args.get('project')
+    if ledgerStore.exist(project): 
+        net = ledgerStore[project]
+        return jsonify({'status': 'OK', 'network': net})
+    else:
+        return jsonify({'status': 'FAIL'})
+
 @app.route("/suspend", methods=['GET'])
 @cross_origin()
 def suspend_net():

@@ -12,3 +12,5 @@ static
 __pycache__
 log.txt
 bin/
+workdir/
+freeports.txt
