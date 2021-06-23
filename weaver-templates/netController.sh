@@ -157,6 +157,13 @@ function deployChaincode() {
 {%- endif %}
 }
 
+CHAINCODE_NAME=$2
+
+function deploySingleChaincode() {
+  chmod +x scripts/deployChaincode*.sh
+  scripts/deployChaincode${CHAINCODE_NAME}.sh $CLI_DELAY $MAX_RETRY $VERBOSE
+}
+
 MODE=$1
 if [ "${MODE}" == "up" ]; then
   netUp
@@ -170,6 +177,8 @@ elif [ "${MODE}" == "createChannel" ]; then
   createChannel
 elif [ "${MODE}" == "deployChaincode" ]; then
   deployChaincode
+elif [ "${MODE}" == "newChaincode" ]; then
+  deploySingleChaincode
 else
   exit 0
 fi

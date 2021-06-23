@@ -25,7 +25,7 @@ if not os.path.exists(workdir):
     os.makedirs(workdir)
 inputmeta = getConfig(workdir, bindir)
 ledgerStore = LedgerStore('%s/%s' % (workdir, 'ledgerstore.json')) 
-
+controllers = {}
 fports = freePorts.FreePorts()
 @app.route("/generate", methods=['POST'])
 @cross_origin()
@@ -100,6 +100,7 @@ def generate():
         controller = ledgerController.LedgerController(data=input_data, \
             logfile='%s/%s_log' % (workdir, origin_input['project']))
         controller.deployLedger()
+        controllers[origin_input['project']] = controller
     except LedgerBootError as e:
         print(e.msg)
     ledgerStore.append(input_data, status='running')
@@ -178,6 +179,30 @@ def remove_net():
             [j['port'] for i in input_data['peerorgs'] for j in i['peernodes']] + \
             [j['CCport'] for i in input_data['peerorgs'] for j in i['peernodes']])
         ledgerStore.remove(project)
+    return jsonify({'status': 'OK'})
+
+@app.route("/newcc", methods=['POST'])
+@cross_origin()
+def remove_net():    
+    origin_input = request.get_json()
+    if ledgerStore.exist(origin_input['project']) :
+        chaincode = {
+            'channel': origin_input['chaincode']['channel'],
+            'cc_name': origin_input['chaincode']['cc_name'],
+            'cc_path_origin': origin_input['chaincode']['cc_path_origin'],
+            'cc_path': origin_input['chaincode']['cc_path'],
+            'cc_lang': origin_input['chaincode']['cc_lang'],
+            'cc_version': origin_input['chaincode']['cc_version'],
+            'cc_seq': origin_input['chaincode']['cc_seq'],
+            'init_func': origin_input['chaincode']['init_func'],
+            'sig_policy': 'NA',
+            'col_config': 'NA',
+            'endorse_peers': []          
+        }
+        for org in origin_input['chaincode']['channel']['orgs']:
+            chaincode['endorse_peers'].append({'org': org, 'peer': 0})
+
+        controllers[origin_input['project']].addChaincode(chaincode)
     return jsonify({'status': 'OK'})
 
 if __name__ == '__main__':

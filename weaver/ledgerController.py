@@ -107,7 +107,11 @@ class LedgerController(object):
         if(self._run_command('./netController.sh', ['deployChaincode'])):
             return 1
         return 0
-    
+    def _deploy_chaincode(self, cc_name):
+        if(self._run_command('./netController.sh', ['newChaincode', 'cc_name'])):
+            return 1
+        return 0
+
     def deployLedger(self):
         pwd = os.getcwd()
         
@@ -195,3 +199,23 @@ class LedgerController(object):
         if(os.path.exists(self.target_path)):
             shutil.rmtree(self.target_path)
             os.remove(self.logfile)
+    
+    def addChaincode(self, chaincode):
+        pwd = os.getcwd()
+        if(os.path.exists(self.target_path)):
+            chaincode['is_deployed'] = False
+            self.data['chaincodes'].append(chaincode)
+            createScript.create_DeployChaincode(self.target_path, self.data)
+            for chaincode in self.data['chaincodes']:
+                os.makedirs(os.path.dirname(chaincode['cc_path']), exist_ok=True)
+                self._run_command('cp', ['-r', chaincode['cc_path_origin'], chaincode['cc_path']])
+            for id, chaincode in enumerate(self.data['chaincodes']):
+                if chaincode['is_deployed'] == False: 
+                    self._deploy_chaincode(chaincode['cc_name'])
+                    self.data['chaincodes'][id]['is_deployed'] = True
+            os.chdir(pwd)
+            return 0
+        else:
+            print('\n' + ShellColors.FAIL + '[Ledger Controller]' + ShellColors.ENDC + ':New Chaincode Failed, Ledger Not Exist' + '\n')
+            os.chdir(pwd)
+            return 1
